@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { usePathname, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutAction } from "@/redux/user/slice";
 
 import Sidebar from "../components/sidebar/Sidebar";
 import Header from "../components/header/Header";
@@ -10,34 +12,31 @@ const MasterLayout = ({ children }) => {
   let pathname = usePathname();
   let [sidebarActive, seSidebarActive] = useState(false);
   let [mobileMenu, setMobileMenu] = useState(false);
-  let [currentUser, setCurrentUser] = useState(null);
   const location = usePathname(); // Hook to get the current route
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { userInfo } = useSelector(state => state.authUser);
 
-  // Get current user data
-  useEffect(() => {
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        setCurrentUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error);
-    }
-  }, []);
+  // Get current user data from Redux state
+  const currentUser = localStorage.getItem("userInfo")
+    ? JSON.parse(localStorage.getItem("userInfo"))
+    : null;
 
   const handleLogout = () => {
     try {
-      // Clear authentication data
-      localStorage.removeItem("authToken");
+      // Dispatch Redux logout action which will clear all auth data
+      dispatch(logoutAction());
+      
+      // Clear any additional localStorage items that might exist
       localStorage.removeItem("userData");
-
-      // Redirect to login page
-      router.push("/sign-in");
+      localStorage.removeItem("authToken");
+      
+      // Force a complete page reload to clear all application state
+      window.location.href = "/sign-in";
     } catch (error) {
       console.error("Logout error:", error);
-      // Still redirect even if there's an error clearing storage
-      router.push("/sign-in");
+      // Even if there's an error, force navigation to login
+      window.location.href = "/sign-in";
     }
   };
 

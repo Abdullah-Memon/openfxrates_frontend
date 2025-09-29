@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import { loginAction } from '@/redux/user/action';
+import { clearError } from '@/redux/user/slice';
 import { ValidationSchemas } from '@/utils/validations';
 import getCompanyLogo from "@/helper/Logo";
 
@@ -19,8 +20,8 @@ const SignInMainPage = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: 'isyed@webperts.com',
-      password: 'Abc@1234',
+      email: '',
+      password: '',
       remember: false
     },
     validationSchema,
@@ -33,11 +34,20 @@ const SignInMainPage = () => {
       const result = await dispatch(loginAction(loginPayload));
       
       if (loginAction.fulfilled.match(result)) {
-        // Reset form values and states after successful login
+        // Login successful - reset form and redirect
         resetForm();
         setShowPassword(false);
-        
+
+        // if user's email is not verified, redirect to verification page
+        if (result?.payload?.data?.email_verified === false) {
+          router.push('/verification/email');
+          return;
+        }
         router.push('/');
+      } else if (loginAction.rejected.match(result)) {
+        // Login failed - error message already shown by toast
+        // Keep user on login page, form will show error state
+        console.log('Login attempt failed, staying on login page');
       }
     }
   });
@@ -58,6 +68,12 @@ const SignInMainPage = () => {
               Welcome back! please enter your detail
             </p>
           </div>
+          {/* {error && (
+            <div className="alert alert-danger mb-20" role="alert">
+              <Icon icon="mage:warning" className="me-2" />
+              {error}
+            </div>
+          )} */}
           <form onSubmit={formik.handleSubmit}>
             <div className='icon-field mb-16'>
               <span className='icon top-50 translate-middle-y'>
@@ -67,7 +83,13 @@ const SignInMainPage = () => {
                 type='email'
                 name='email'
                 value={formik.values.email}
-                onChange={formik.handleChange}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  // Clear any existing errors when user starts typing
+                  if (error) {
+                    dispatch(clearError());
+                  }
+                }}
                 onBlur={formik.handleBlur}
                 className={`form-control h-56-px bg-neutral-50 radius-12 ${
                   formik.touched.email && formik.errors.email ? 'is-invalid' : ''
@@ -88,7 +110,13 @@ const SignInMainPage = () => {
                   type={showPassword ? 'text' : 'password'}
                   name='password'
                   value={formik.values.password}
-                  onChange={formik.handleChange}
+                  onChange={(e) => {
+                    formik.handleChange(e);
+                    // Clear any existing errors when user starts typing
+                    if (error) {
+                      dispatch(clearError());
+                    }
+                  }}
                   onBlur={formik.handleBlur}
                   className={`form-control h-56-px bg-neutral-50 radius-12 ${
                     formik.touched.password && formik.errors.password ? 'is-invalid' : ''

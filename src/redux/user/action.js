@@ -8,16 +8,41 @@ export const loginAction = createAsyncThunk(
     try {
       const res = await loginApi(payload)
       
-      if (res.status === 200) {
+      // Check for successful status codes
+      if (res.status === 200 || res.status === 201) {
+        // For successful responses, validate that we have required data
+
+        console.log('Login API Response Data:', res.data);
+        if (!res.data.token) {
+          const errorMessage = 'Unauthorized'
+          toast.error(res?.data?.message || errorMessage)
+          return rejectWithValue(errorMessage)
+        }
+        
         toast.success('Login successful!')
         return { status: res.status, data: res.data }
       } else {
-        toast.error(res?.data?.message || 'Login failed')
-        return rejectWithValue(res?.data?.message || 'Login failed')
+        // Any non-success status should be treated as an error
+        const errorMessage = res?.data?.message || `Login failed with status ${res.status}`
+        toast.error(errorMessage)
+        return rejectWithValue(errorMessage)
       }
     } catch (error) {
-      toast.error('Network error occurred')
-      return rejectWithValue('Network error occurred')
+      // Handle network errors and server errors properly
+      // Check if this is an HTTP error response (like 401, 400, etc.)
+      if (error?.response) {
+        const status = error.response.status
+        const errorMessage = error.response.data?.message || 
+                             error.response.data?.error ||
+                             `Login failed with status ${status}`
+        toast.error(errorMessage)
+        return rejectWithValue(errorMessage)
+      } else {
+        // Network or other errors
+        const errorMessage = error?.message || 'Network error occurred'
+        toast.error(errorMessage)
+        return rejectWithValue(errorMessage)
+      }
     }
   }
 )
@@ -32,12 +57,14 @@ export const registerAction = createAsyncThunk(
         toast.success('Registration successful!')
         return { status: res.status, data: res.data }
       } else {
-        toast.error(res?.data?.message || 'Registration failed')
-        return rejectWithValue(res?.data?.message || 'Registration failed')
+        const errorMessage = res?.data?.message || 'Registration failed'
+        toast.error(errorMessage)
+        return rejectWithValue(errorMessage)
       }
     } catch (error) {
-      toast.error('Network error occurred')
-      return rejectWithValue('Network error occurred')
+      const errorMessage = error?.response?.data?.message || error?.message || 'Network error occurred'
+      toast.error(errorMessage)
+      return rejectWithValue(errorMessage)
     }
   }
 )
@@ -51,10 +78,12 @@ export const getUserProfileAction = createAsyncThunk(
       if (res.status === 200) {
         return { status: res.status, data: res.data }
       } else {
-        return rejectWithValue(res?.data?.message || 'Failed to get user profile')
+        const errorMessage = res?.data?.message || 'Failed to get user profile'
+        return rejectWithValue(errorMessage)
       }
     } catch (error) {
-      return rejectWithValue('Network error occurred')
+      const errorMessage = error?.response?.data?.message || error?.message || 'Network error occurred'
+      return rejectWithValue(errorMessage)
     }
   }
 )

@@ -1,5 +1,4 @@
-import Breadcrumb from "@/components/Breadcrumb";
-import MasterLayout from "@/masterLayout/MasterLayout";
+
 import VerificationMainPage from "@/views/verification";
 
 export const metadata = {
@@ -11,14 +10,9 @@ export const metadata = {
 const Page = () => {
   return (
     <>
-      <MasterLayout>
-        {/* Breadcrumb */}
-        <Breadcrumb title='API Keys' />
-        <VerificationMainPage/>
-      </MasterLayout>
+    <VerificationMainPage />
     </>
   );
 };
 
 export default Page;
-

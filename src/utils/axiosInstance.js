@@ -28,9 +28,13 @@ axiosInstance.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      // Token expired or invalid, clear auth data
+      // Token expired or invalid, clear all auth data
       Cookies.remove('authToken')
       localStorage.removeItem('userInfo')
+      localStorage.removeItem('userData')
+      sessionStorage.clear() // Clear all session data
+      
+      // Force reload to clear all application state and redirect to login
       window.location.href = '/sign-in'
     }
     return Promise.reject(error)

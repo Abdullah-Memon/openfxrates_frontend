@@ -8,6 +8,8 @@ import { useFormik } from 'formik';
 import { ValidationSchemas } from '@/utils/validations';
 import getCompanyLogo from "@/helper/Logo";
 import { requestOtpAction, verifyOtpEmailAction } from '@/redux/otp/action';
+import { getOtpPurposeOptions } from '@/utils/enums';
+import { setUserInfoReducer } from '@/redux/user/slice';
 
 const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
   // Steps: 'GET_OTP' -> 'VERIFY_OTP'
@@ -21,6 +23,42 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
   const { isLoading, error } = useSelector(state => state.otp);
 
   const validationSchema = ValidationSchemas.otpVerification();
+
+  // Helper function to get purpose-specific content
+  const getPurposeContent = () => {
+    switch (purpose) {
+      case getOtpPurposeOptions().EMAIL_VERIFICATION:
+        return {
+          title: 'Verify Your Email',
+          getOtpDescription: 'We will send a 6-character verification code to your registered email address. Click the button below to receive your verification code.',
+          verifyDescription: 'We have sent a 6-character verification code to your email address. Please enter it below to verify your account.',
+          successMessage: 'Email verified successfully!'
+        };
+      case getOtpPurposeOptions().FORGOT_PASSWORD:
+        return {
+          title: 'Reset Your Password',
+          getOtpDescription: 'We will send a 6-character verification code to your registered email address. Click the button below to receive your password reset code.',
+          verifyDescription: 'We have sent a 6-character verification code to your email address. Please enter it below to reset your password.',
+          successMessage: 'Code verified successfully!'
+        };
+      case getOtpPurposeOptions().UPDATE_PASSWORD:
+        return {
+          title: 'Update Your Password',
+          getOtpDescription: 'We will send a 6-character verification code to your registered email address. Click the button below to receive your verification code.',
+          verifyDescription: 'We have sent a 6-character verification code to your email address. Please enter it below to update your password.',
+          successMessage: 'Code verified successfully!'
+        };
+      default:
+        return {
+          title: 'Verify Your Account',
+          getOtpDescription: 'We will send a 6-character verification code to your registered email address. Click the button below to receive your verification code.',
+          verifyDescription: 'We have sent a 6-character verification code to your email address. Please enter it below to verify your account.',
+          successMessage: 'Verification successful!'
+        };
+    }
+  };
+
+  const content = getPurposeContent();
 
   // Get email from localStorage on component mount
   useEffect(() => {
@@ -65,9 +103,29 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
           
           console.log('Verification successful:', result);
 
-          // Call onSuccess callback on successful verification
+          // Update userInfo in localStorage and Redux to mark email as verified
+          try {
+            const storedUserInfo = localStorage.getItem('userInfo');
+            if (storedUserInfo) {
+              const userData = JSON.parse(storedUserInfo);
+              userData.email_verified = true;
+              
+              // Update localStorage
+              localStorage.setItem('userInfo', JSON.stringify(userData));
+              
+              // Update Redux state
+              dispatch(setUserInfoReducer(userData));
+            }
+          } catch (updateError) {
+            console.error('Failed to update email verification status:', updateError);
+          }
+
+          // Call onSuccess callback if provided (for modal usage)
           if (onSuccess) {
             onSuccess();
+          } else {
+            // For route usage, redirect to dashboard
+            router.push('/');
           }
         } catch (error) {
           console.error('Verification failed:', error);
@@ -145,9 +203,9 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
             
             {currentStep === 'GET_OTP' ? (
               <>
-                <h4 className='mb-12'>Request Verification Code</h4>
+                <h4 className='mb-12'>{content.title}</h4>
                 <p className='mb-32 text-secondary-light text-lg'>
-                  We will send a 6-character verification code to your registered email address. Click the button below to receive your verification code.
+                  {content.getOtpDescription}
                 </p>
                 
                 <div className="d-flex flex-column gap-3">
@@ -194,9 +252,9 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
               </>
             ) : (
               <>
-                <h4 className='mb-12'>Verify Your Account</h4>
+                <h4 className='mb-12'>{content.title}</h4>
                 <p className='mb-32 text-secondary-light text-lg'>
-                  We have sent a 6-character verification code to your email address. Please enter it below to verify your account.
+                  {content.verifyDescription}
                 </p>
                 
                 <form onSubmit={formik.handleSubmit}>
@@ -221,7 +279,7 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
                         className={`form-control h-56-px bg-neutral-50 radius-12 text-center fw-semibold text-lg letter-spacing-4 ${
                           formik.touched.otp && formik.errors.otp ? 'is-invalid' : ''
                         }`}
-                        placeholder='S68CJG'
+                        placeholder='XXXXXX'
                         maxLength='6'
                         autoComplete='one-time-code'
                         style={{ letterSpacing: '0.5rem' }}

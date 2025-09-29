@@ -19,11 +19,37 @@ export const AuthUserSlice = createSlice({
       state.isAuthenticated = !!payload
     },
     logoutAction: (state) => {
+      // Clear Redux state first
       state.userInfo = null
       state.isAuthenticated = false
       state.error = null
-      Cookies.remove('authToken', { domain: getCurrentDomain() })
-      localStorage.removeItem('userInfo')
+      state.isLoading = false
+      
+      try {
+        // Clear authentication cookie with all possible domain configurations
+        Cookies.remove('authToken')
+        Cookies.remove('authToken', { domain: getCurrentDomain() })
+        Cookies.remove('authToken', { domain: `.${getCurrentDomain()}` })
+        
+        // Clear all possible authentication-related localStorage items
+        localStorage.removeItem('userInfo')
+        localStorage.removeItem('userData') // Legacy key used in some components
+        localStorage.removeItem('authToken') // In case it was stored in localStorage somewhere
+        localStorage.removeItem('refreshToken')
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        
+        // Clear sessionStorage as well
+        sessionStorage.removeItem('userInfo')
+        sessionStorage.removeItem('userData')
+        sessionStorage.removeItem('authToken')
+        sessionStorage.removeItem('token')
+        
+        console.log('Logout completed: All authentication data cleared')
+      } catch (error) {
+        console.error('Error during logout cleanup:', error)
+        // Even if cleanup fails, ensure state is cleared
+      }
     },
     clearError: (state) => {
       state.error = null
