@@ -24,7 +24,7 @@ const SignInMainPage = () => {
       remember: false
     },
     validationSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { resetForm }) => {
       const loginPayload = {
         email: values.email,
         password: values.password
@@ -33,6 +33,10 @@ const SignInMainPage = () => {
       const result = await dispatch(loginAction(loginPayload));
       
       if (loginAction.fulfilled.match(result)) {
+        // Reset form values and states after successful login
+        resetForm();
+        setShowPassword(false);
+        
         router.push('/');
       }
     }

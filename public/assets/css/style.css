@@ -13009,13 +13009,13 @@ select option {
 
 /* custom form fields css end */
 [data-theme="dark"] .form-select {
-  background-image: url(../images/arrow-down.png);
+  /* background-image: url(../images/arrow-down.png); */
   background-size: 11px 7px;
   background-repeat: no-repeat;
 }
 
 [data-theme="dark"] .btn-close {
-  background-image: url(../images/times.png);
+  /* background-image: url(../images/times.png); */
   background-size: auto;
   background-repeat: no-repeat;
   opacity: 1;
@@ -13945,7 +13945,7 @@ select option {
 }
 
 #imagePreview {
-  background-image: url("../images/user-grid/user-grid-img13.png");
+  /* background-image: url("../images/user-grid/user-grid-img13.png"); */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -13953,7 +13953,7 @@ select option {
 
 #previewImage1,
 #previewImage2 {
-  background-image: url("../images/payment/upload-image.png");
+  /* background-image: url("../images/payment/upload-image.png"); */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -15171,7 +15171,7 @@ td.fc-header-center {
 /* === NFT end === */
 /* === trail card start === */
 .trail-bg {
-  background-image: url("../images/home-nine/trail-bg.png");
+  /* background-image: url("../images/home-nine/trail-bg.png"); */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;

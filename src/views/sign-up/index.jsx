@@ -77,7 +77,7 @@ const SignUpMainPage = () => {
     validationSchema,
     validateOnChange: true,
     validateOnBlur: true,
-    onSubmit: async (values, { setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         setSubmitting(true);
         console.log('Form values:', values);
@@ -88,6 +88,11 @@ const SignUpMainPage = () => {
         console.log('Registration result:', result);
         if (result.status === 201) {
           toast.success('Account created successfully! Redirecting to sign in...');
+          
+          // Reset form values and states after successful registration
+          resetForm();
+          setShowPassword(false);
+          
           setTimeout(() => {
             router.push('/sign-in');
           }, 2000);
