@@ -8,6 +8,9 @@ export const metadata = {
     "Manage and monitor foreign exchange rates with OpenFXRates comprehensive dashboard. Access real-time currency data and analytics.",
 };
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default function HomePage() {
   return (
     <>

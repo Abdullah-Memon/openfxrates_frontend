@@ -1,5 +1,5 @@
 import Breadcrumb from "@/components/Breadcrumb";
-import CurrenciesLayer from "@/components/CurrenciesLayer";
+import CurrenciesMainPage from "@/views/currencies";
 import MasterLayout from "@/masterLayout/MasterLayout";
 
 export const metadata = {
@@ -16,8 +16,8 @@ const Page = () => {
         {/* Breadcrumb */}
         <Breadcrumb title='Settings - Currencies' />
 
-        {/* CurrenciesLayer */}
-        <CurrenciesLayer />
+        {/* CurrenciesMainPage */}
+        <CurrenciesMainPage />
       </MasterLayout>
     </>
   );
