@@ -7,6 +7,11 @@ export const metadata = {
   title: "OpenFXRates - Real-time Foreign Exchange Rates API",
   description:
     "OpenFXRates provides reliable, real-time foreign exchange rates and currency conversion API services for developers and businesses worldwide.",
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({ children }) {

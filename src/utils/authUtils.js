@@ -12,6 +12,8 @@ export const authUtils = {
   validateAuth() {
     try {
       const token = Cookies.get('authToken');
+      console.log("Auth Token from Cookies:", token);
+
       const userInfoStr = localStorage.getItem('userInfo');
       
       if (!token || !userInfoStr) {
@@ -26,13 +28,7 @@ export const authUtils = {
         this.clearAllAuthData();
         return { isValid: false, token: null, userInfo: null };
       }
-      
-      // Validate user info structure
-      if (!userInfo || typeof userInfo !== 'object' || !userInfo.id) {
-        console.error('Invalid user info structure');
-        this.clearAllAuthData();
-        return { isValid: false, token: null, userInfo: null };
-      }
+
       
       return { isValid: true, token, userInfo };
     } catch (error) {

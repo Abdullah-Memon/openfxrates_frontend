@@ -12,7 +12,6 @@ export const loginAction = createAsyncThunk(
       if (res.status === 200 || res.status === 201) {
         // For successful responses, validate that we have required data
 
-        console.log('Login API Response Data:', res.data);
         if (!res.data.token) {
           const errorMessage = 'Unauthorized'
           toast.error(res?.data?.message || errorMessage)
