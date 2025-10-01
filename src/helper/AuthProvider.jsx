@@ -76,15 +76,22 @@ const AuthProvider = ({ children }) => {
   // Main authentication effect
   useEffect(() => {
     const handleAuth = async () => {
-      console.log('AuthProvider: Starting authentication check for:', pathname);
+      // Prevent excessive logging
+      if (pathname !== '/sign-in') {
+        console.log('AuthProvider: Starting authentication check for:', pathname);
+      }
       
       try {
         const authState = authUtils.validateAuth();
-        console.log('AuthProvider: Auth state:', { 
-          isValid: authState.isValid, 
-          hasUserInfo: !!authState.userInfo,
-          emailVerified: authState.userInfo?.email_verified 
-        });
+        
+        // Only log for non-sign-in routes to reduce noise
+        if (pathname !== '/sign-in') {
+          console.log('AuthProvider: Auth state:', { 
+            isValid: authState.isValid, 
+            hasUserInfo: !!authState.userInfo,
+            emailVerified: authState.userInfo?.email_verified 
+          });
+        }
 
         // Update Redux state if we have valid auth but missing userInfo
         if (authState.isValid && authState.userInfo && !userInfo) {
@@ -129,13 +136,19 @@ const AuthProvider = ({ children }) => {
     };
 
     handleAuth();
-  }, [pathname, isPublicRoute, isVerificationRoute, isAuthRoute, dispatch, userInfo, isAuthenticated]);
+  }, [pathname, isPublicRoute, isVerificationRoute, isAuthRoute, dispatch]);
 
   // Handle redirects in a separate effect
   useEffect(() => {
     if (redirectPath && redirectPath !== pathname) {
       console.log('AuthProvider: Executing redirect to:', redirectPath);
-      router.push(redirectPath);
+      
+      // Add a small delay to prevent rapid redirects
+      const timer = setTimeout(() => {
+        router.push(redirectPath);
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
   }, [redirectPath, router, pathname]);
 

@@ -9,7 +9,7 @@ import { ValidationSchemas } from '@/utils/validations';
 import getCompanyLogo from "@/helper/Logo";
 import { requestOtpAction, verifyOtpEmailAction } from '@/redux/otp/action';
 import { getOtpPurposeOptions } from '@/utils/enums';
-import { setUserInfoReducer } from '@/redux/user/slice';
+import { setUserInfoReducer, logoutAction } from '@/redux/user/slice';
 
 const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
   // Steps: 'GET_OTP' -> 'VERIFY_OTP'
@@ -18,6 +18,7 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
   const [getOtpLoading, setGetOtpLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
+  const [isEmailVerified, setIsEmailVerified] = useState(true); // Default true to show "Go Back" if we can't determine
   const router = useRouter();
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector(state => state.otp);
@@ -69,11 +70,19 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
         if (parsedUserInfo.email) {
           setEmail(parsedUserInfo.email);
         }
+        // Check email verification status
+        setIsEmailVerified(parsedUserInfo.email_verified !== false);
       } catch (error) {
         console.error('Error parsing userInfo from localStorage:', error);
       }
     }
   }, []);
+
+  // Handle logout for unverified users
+  const handleLogout = () => {
+    dispatch(logoutAction());
+    router.push('/sign-in');
+  };
 
   // Timer effect for resend functionality
   useEffect(() => {
@@ -241,13 +250,24 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
                     </button>
                   )}
                   
-                  <button
-                    type='button'
-                    onClick={() => router.back()}
-                    className='btn btn-outline-primary text-sm btn-sm px-12 py-16 w-100 radius-12'
-                  >
-                    Go Back
-                  </button>
+                  {isEmailVerified ? (
+                    <button
+                      type='button'
+                      onClick={() => router.back()}
+                      className='btn btn-outline-primary text-sm btn-sm px-12 py-16 w-100 radius-12'
+                    >
+                      Go Back
+                    </button>
+                  ) : (
+                    <button
+                      type='button'
+                      onClick={handleLogout}
+                      className='btn text-sm btn-sm px-12 py-16'
+                    >
+                      <Icon icon="solar:logout-2-outline" className="me-1" />
+                      Logout
+                    </button>
+                  )}
                 </div>
               </>
             ) : (
@@ -317,13 +337,24 @@ const VerificationMainPage = ({purpose, onClose, onSuccess}) => {
                       </button>
                     )}
                     
-                    <button
-                      type='button'
-                      onClick={() => router.back()}
-                      className='btn btn-outline-primary text-sm btn-sm px-12 py-16 w-100 radius-12'
-                    >
-                      Go Back
-                    </button>
+                    {isEmailVerified ? (
+                      <button
+                        type='button'
+                        onClick={() => router.back()}
+                        className='btn btn-outline-primary text-sm btn-sm px-12 py-16 w-100 radius-12'
+                      >
+                        Go Back
+                      </button>
+                    ) : (
+                      <button
+                        type='button'
+                        onClick={handleLogout}
+                        className='btn btn-outline-danger text-sm btn-sm px-12 py-16 w-100 radius-12'
+                      >
+                        <Icon icon="solar:logout-2-outline" className="me-1" />
+                        Logout
+                      </button>
+                    )}
                   </div>
                   
                   <div className="text-center mt-20">

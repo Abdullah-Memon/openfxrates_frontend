@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { loginAction, registerAction, getUserProfileAction } from './action'
 import Cookies from 'js-cookie'
+import { getCurrentDomain, getCookieDomain } from '@/utils/baseUrl'
 
 const initialState = {
   userInfo: null,
@@ -27,6 +28,7 @@ export const AuthUserSlice = createSlice({
       try {
         // Clear authentication cookie with all possible domain configurations
         Cookies.remove('authToken')
+        Cookies.remove('authToken', { domain: getCookieDomain() })
         Cookies.remove('authToken', { domain: window.location.hostname })
         Cookies.remove('authToken', { domain: `.${window.location.hostname}` })
         
@@ -67,15 +69,16 @@ export const AuthUserSlice = createSlice({
         state.isAuthenticated = true
         state.error = null
         
+        const {token, ...userData} = payload.data
         // Store token in cookie and user info in localStorage
-        Cookies.set('authToken', payload.data.token, {
+        Cookies.set('authToken', token, {
+          path: '/',
           expires: 7, // 7 days
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict'
-          // Remove domain setting to use default (current hostname)
-          // The getCurrentDomain() returns full URL which is invalid for cookie domain
+          secure: false,
+          sameSite: 'Strict',
+          domain: getCookieDomain()
         })
-        localStorage.setItem('userInfo', JSON.stringify(payload.data))
+        localStorage.setItem('userInfo', JSON.stringify(userData))
       })
       .addCase(loginAction.rejected, (state, { payload }) => {
         state.isLoading = false

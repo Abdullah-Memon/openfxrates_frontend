@@ -1,9 +1,10 @@
 {
-  "name": "wowdash-nextjs",
+  "name": "openfxrates-nextjs",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H dev.openfxrates.local -p 3000",
+    "dev:localhost": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

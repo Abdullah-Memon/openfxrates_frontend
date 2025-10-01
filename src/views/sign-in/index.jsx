@@ -9,6 +9,7 @@ import { loginAction } from '@/redux/user/action';
 import { clearError } from '@/redux/user/slice';
 import { ValidationSchemas } from '@/utils/validations';
 import getCompanyLogo from "@/helper/Logo";
+import TextInput from '@/components/inputs/TextInput';
 
 const SignInMainPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,16 +38,12 @@ const SignInMainPage = () => {
         // Login successful - reset form and redirect
         resetForm();
         setShowPassword(false);
-
-        // if user's email is not verified, redirect to verification page
-        if (result?.payload?.data?.email_verified === false) {
-          router.push('/verification/email');
-          return;
-        }
-        router.push('/');
+        
+        // Small delay to ensure state is updated before redirect
+        setTimeout(() => {
+          router.push('/');
+        }, 100);
       } else if (loginAction.rejected.match(result)) {
-        // Login failed - error message already shown by toast
-        // Keep user on login page, form will show error state
         console.log('Login attempt failed, staying on login page');
       }
     }
@@ -75,11 +72,8 @@ const SignInMainPage = () => {
             </div>
           )} */}
           <form onSubmit={formik.handleSubmit}>
-            <div className='icon-field mb-16'>
-              <span className='icon top-50 translate-middle-y'>
-                <Icon icon='mage:email' />
-              </span>
-              <input
+            <div className='mb-16'>
+              <TextInput
                 type='email'
                 name='email'
                 value={formik.values.email}
@@ -91,48 +85,39 @@ const SignInMainPage = () => {
                   }
                 }}
                 onBlur={formik.handleBlur}
-                className={`form-control h-56-px bg-neutral-50 radius-12 ${
-                  formik.touched.email && formik.errors.email ? 'is-invalid' : ''
-                }`}
                 placeholder='Email'
+                startAdornment={<Icon icon='mage:email' />}
+                error={formik.touched.email && formik.errors.email ? formik.errors.email : ''}
+                className='h-56-px'
                 required
               />
-              {formik.touched.email && formik.errors.email && (
-                <div className="invalid-feedback">{formik.errors.email}</div>
-              )}
             </div>
-            <div className='position-relative mb-20'>
-              <div className='icon-field'>
-                <span className='icon top-50 translate-middle-y'>
-                  <Icon icon='solar:lock-password-outline' />
-                </span>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name='password'
-                  value={formik.values.password}
-                  onChange={(e) => {
-                    formik.handleChange(e);
-                    // Clear any existing errors when user starts typing
-                    if (error) {
-                      dispatch(clearError());
-                    }
-                  }}
-                  onBlur={formik.handleBlur}
-                  className={`form-control h-56-px bg-neutral-50 radius-12 ${
-                    formik.touched.password && formik.errors.password ? 'is-invalid' : ''
-                  }`}
-                  id='your-password'
-                  placeholder='Password'
-                  required
-                />
-              </div>
-              <span
-                className={`toggle-password ${showPassword ? 'ri-eye-off-line' : 'ri-eye-line'} cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light`}
-                onClick={togglePasswordVisibility}
+            <div className='mb-20'>
+              <TextInput
+                type={showPassword ? 'text' : 'password'}
+                name='password'
+                value={formik.values.password}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  // Clear any existing errors when user starts typing
+                  if (error) {
+                    dispatch(clearError());
+                  }
+                }}
+                onBlur={formik.handleBlur}
+                placeholder='Password'
+                startAdornment={<Icon icon='solar:lock-password-outline' />}
+                endAdornment={
+                  <span
+                    className={`${showPassword ? 'ri-eye-off-line' : 'ri-eye-line'} cursor-pointer text-secondary-light`}
+                    onClick={togglePasswordVisibility}
+                  />
+                }
+                error={formik.touched.password && formik.errors.password ? formik.errors.password : ''}
+                className='h-56-px'
+                id='your-password'
+                required
               />
-              {formik.touched.password && formik.errors.password && (
-                <div className="invalid-feedback d-block">{formik.errors.password}</div>
-              )}
             </div>
             <div className=''>
               <div className='d-flex justify-content-between gap-2'>

@@ -1,19 +1,10 @@
 import Cookies from 'js-cookie';
 
-/**
- * Utility functions for secure authentication state management
- */
-
 export const authUtils = {
-  /**
-   * Validates if user is properly authenticated
-   * @returns {Object} { isValid: boolean, token: string|null, userInfo: Object|null }
-   */
   validateAuth() {
     try {
       const token = Cookies.get('authToken');
-      console.log("Auth Token from Cookies:", token);
-
+      
       const userInfoStr = localStorage.getItem('userInfo');
       
       if (!token || !userInfoStr) {
@@ -38,9 +29,6 @@ export const authUtils = {
     }
   },
 
-  /**
-   * Completely clears all authentication data from all storage locations
-   */
   clearAllAuthData() {
     try {
       // Clear cookies with different domain configurations
@@ -62,7 +50,6 @@ export const authUtils = {
       ];
       sessionStorageKeys.forEach(key => sessionStorage.removeItem(key));
       
-      console.log('All authentication data cleared');
     } catch (error) {
       console.error('Error clearing auth data:', error);
     }
@@ -72,6 +59,7 @@ export const authUtils = {
    * Forces a secure logout by clearing all data and redirecting
    */
   forceLogout() {
+
     this.clearAllAuthData();
     window.location.href = '/sign-in';
   },
