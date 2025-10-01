@@ -1,4 +1,4 @@
-export const CURRENT_ENVIRONMENT = 'LOCAL' // Change this as needed: 'PROD', 'DEV', or 'LOCAL'
+export const CURRENT_ENVIRONMENT = 'DEV' // Change this as needed: 'PROD', 'DEV', or 'LOCAL'
 
 export const getGetBackendServerLink = () => {
   if (CURRENT_ENVIRONMENT == 'PROD') {
