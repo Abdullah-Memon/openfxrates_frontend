@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 import TextInput from '@/components/inputs/TextInput';
 import DropDown from '@/components/inputs/DropDown';
 import { emailRegex, passwordRegex, websiteRegex } from '@/utils/regexPatterns';
+import { CountryList } from '@/utils/countryList';
 
 const SignUpMainPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +45,7 @@ const SignUpMainPage = () => {
       .max(255, 'Address must not exceed 255 characters')
       .nullable(),
     country: Yup.string()
-      .max(100, 'Country must not exceed 100 characters')
+      .oneOf(CountryList.map(c => c.code), 'Please select a valid country')
       .nullable(),
     company_name: Yup.string()
       .max(100, 'Company name must not exceed 100 characters')
@@ -109,6 +110,15 @@ const SignUpMainPage = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  // Transform CountryList to dropdown options format
+  const countryOptions = [
+    { value: '', label: 'Select Country' },
+    ...CountryList.map(country => ({
+      value: country.code,
+      label: country.label
+    }))
+  ];
 
   // Debug: Check form state
   const isFormValid = !!(
@@ -297,10 +307,10 @@ const SignUpMainPage = () => {
                   />
                 </div>
                 <div className='col-md-4'>
-                  <TextInput
+                  <DropDown
                     label=""
-                    placeholder="Country"
-                    type="text"
+                    placeholder="Select Country"
+                    options={countryOptions}
                     value={formik.values.country}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -321,6 +331,7 @@ const SignUpMainPage = () => {
                 <DropDown
                   label=""
                   placeholder="Select how you heard about us"
+                  startAdornment={<Icon icon='mdi:chart-line' />}
                   name="marketing_channel"
                   value={formik.values.marketing_channel}
                   onChange={formik.handleChange}
